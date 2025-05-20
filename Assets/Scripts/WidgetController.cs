@@ -7,24 +7,25 @@ public class WidgetController : MonoBehaviour
     public float rollSpeed = 6;
     public float fastSpeed = 2;
     public float rotateSpeed = 4;
+    public float duckSpeed = 0.5f;
     public float gravity = 20;
     public float jumpSpeed = 8;
     public CharacterController controller;
+    public WidgetStatus widgetStatus;
 
     float moveHorz = 0;
+    float normalHeight = 2;
+    float duckHeight = 1;
     Vector3 moveDir = Vector3.zero;
     Vector3 rotateDir = Vector3.zero;
     bool isGrounded = false;
     bool isBoosting = false;
+    bool isDucking = false;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-    }
-
-    void Update()
-    {
-
+        widgetStatus = GetComponent<WidgetStatus>();
     }
 
     void FixedUpdate()
@@ -58,12 +59,43 @@ public class WidgetController : MonoBehaviour
 
             if (Input.GetButton("Boost"))
             {
-                moveDir *= fastSpeed;
-                isBoosting = true;
+                if (widgetStatus)
+                {
+                    if (widgetStatus.energy > 0)
+                    {
+                        moveDir *= fastSpeed;
+                        widgetStatus.energy -= widgetStatus.widgetBoostUsage * Time.deltaTime;
+                        isBoosting = true;
+                    }
+                }
             }
             if (Input.GetButtonUp("Boost"))
             {
                 isBoosting = false;
+            }
+
+            if (Input.GetButton("Duck"))
+            {
+                controller.height = duckHeight;
+                controller.center = new Vector3(controller.center.x, (controller.height / 2) + 0.25f, controller.center.z);
+                moveDir *= duckSpeed;
+                isDucking = true;
+            }
+            if (Input.GetButtonUp("Duck"))
+            {
+                controller.height = normalHeight;
+                controller.center = new Vector3(controller.center.x, (controller.height / 2), controller.center.z);
+                moveDir *= rollSpeed;
+                isDucking = false;
+            }
+
+            if (Input.GetKeyUp(KeyCode.P))
+            {
+                widgetStatus.ApplyDamage(3);
+            }
+            if (Input.GetKeyUp(KeyCode.O))
+            {
+                widgetStatus.AddHealth(3);
             }
         }
         moveDir.y -= gravity * Time.deltaTime;
