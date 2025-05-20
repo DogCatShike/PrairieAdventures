@@ -10,6 +10,8 @@ public class WidgetController : MonoBehaviour
     public float duckSpeed = 0.5f;
     public float gravity = 20;
     public float jumpSpeed = 8;
+    public bool isControllable = true;
+
     public CharacterController controller;
     public WidgetStatus widgetStatus;
 
@@ -30,78 +32,85 @@ public class WidgetController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isGrounded)
+        if (!isControllable)
         {
-            float h = Input.GetAxis("Horizontal");
-            float v = Input.GetAxis("Vertical");
-            moveDir = new Vector3(h, 0, v);
-            moveDir = transform.TransformDirection(moveDir);
-            moveDir *= rollSpeed;
+            Input.ResetInputAxes();
+        }
+        else
+        {
+            if (isGrounded)
+            {
+                float h = Input.GetAxis("Horizontal");
+                float v = Input.GetAxis("Vertical");
+                moveDir = new Vector3(h, 0, v);
+                moveDir = transform.TransformDirection(moveDir);
+                moveDir *= rollSpeed;
 
-            moveHorz = Input.GetAxis("Horizontal");
-            if (moveHorz > 0)
-            {
-                rotateDir = new Vector3(0, 1, 0);
-            }
-            else if (moveHorz < 0)
-            {
-                rotateDir = new Vector3(0, -1, 0);
-            }
-            else
-            {
-                rotateDir = Vector3.zero;
-            }
-
-            if (Input.GetButton("Jump"))
-            {
-                moveDir.y = jumpSpeed;
-            }
-
-            if (Input.GetButton("Boost"))
-            {
-                if (widgetStatus)
+                moveHorz = Input.GetAxis("Horizontal");
+                if (moveHorz > 0)
                 {
-                    if (widgetStatus.energy > 0)
+                    rotateDir = new Vector3(0, 1, 0);
+                }
+                else if (moveHorz < 0)
+                {
+                    rotateDir = new Vector3(0, -1, 0);
+                }
+                else
+                {
+                    rotateDir = Vector3.zero;
+                }
+
+                if (Input.GetButton("Jump"))
+                {
+                    moveDir.y = jumpSpeed;
+                }
+
+                if (Input.GetButton("Boost"))
+                {
+                    if (widgetStatus)
                     {
-                        moveDir *= fastSpeed;
-                        widgetStatus.energy -= widgetStatus.widgetBoostUsage * Time.deltaTime;
-                        isBoosting = true;
+                        if (widgetStatus.energy > 0)
+                        {
+                            moveDir *= fastSpeed;
+                            widgetStatus.energy -= widgetStatus.widgetBoostUsage * Time.deltaTime;
+                            isBoosting = true;
+                        }
                     }
                 }
-            }
-            if (Input.GetButtonUp("Boost"))
-            {
-                isBoosting = false;
-            }
+                if (Input.GetButtonUp("Boost"))
+                {
+                    isBoosting = false;
+                }
 
-            if (Input.GetButton("Duck"))
-            {
-                controller.height = duckHeight;
-                controller.center = new Vector3(controller.center.x, (controller.height / 2) + 0.25f, controller.center.z);
-                moveDir *= duckSpeed;
-                isDucking = true;
-            }
-            if (Input.GetButtonUp("Duck"))
-            {
-                controller.height = normalHeight;
-                controller.center = new Vector3(controller.center.x, (controller.height / 2), controller.center.z);
-                moveDir *= rollSpeed;
-                isDucking = false;
-            }
+                if (Input.GetButton("Duck"))
+                {
+                    controller.height = duckHeight;
+                    controller.center = new Vector3(controller.center.x, (controller.height / 2) + 0.25f, controller.center.z);
+                    moveDir *= duckSpeed;
+                    isDucking = true;
+                }
+                if (Input.GetButtonUp("Duck"))
+                {
+                    controller.height = normalHeight;
+                    controller.center = new Vector3(controller.center.x, (controller.height / 2), controller.center.z);
+                    moveDir *= rollSpeed;
+                    isDucking = false;
+                }
 
-            if (Input.GetKeyUp(KeyCode.P))
-            {
-                widgetStatus.ApplyDamage(3);
+                if (Input.GetKeyUp(KeyCode.P))
+                {
+                    widgetStatus.ApplyDamage(3);
+                }
+                if (Input.GetKeyUp(KeyCode.O))
+                {
+                    widgetStatus.AddHealth(3);
+                }
             }
-            if (Input.GetKeyUp(KeyCode.O))
-            {
-                widgetStatus.AddHealth(3);
-            }
+            moveDir.y -= gravity * Time.deltaTime;
+
+            CollisionFlags flags = controller.Move(moveDir * Time.deltaTime);
+            controller.transform.Rotate(rotateDir * Time.deltaTime, rotateSpeed);
+            isGrounded = ((flags & CollisionFlags.CollidedBelow) != 0);
         }
-        moveDir.y -= gravity * Time.deltaTime;
-
-        CollisionFlags flags = controller.Move(moveDir * Time.deltaTime);
-        controller.transform.Rotate(rotateDir * Time.deltaTime, rotateSpeed);
-        isGrounded = ((flags & CollisionFlags.CollidedBelow) != 0);
     }
 }
