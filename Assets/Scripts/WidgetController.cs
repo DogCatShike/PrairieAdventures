@@ -93,7 +93,6 @@ public class WidgetController : MonoBehaviour
                 {
                     controller.height = normalHeight;
                     controller.center = new Vector3(controller.center.x, (controller.height / 2), controller.center.z);
-                    moveDir *= rollSpeed;
                     isDucking = false;
                 }
 
@@ -112,5 +111,25 @@ public class WidgetController : MonoBehaviour
             controller.transform.Rotate(rotateDir * Time.deltaTime, rotateSpeed);
             isGrounded = ((flags & CollisionFlags.CollidedBelow) != 0);
         }
+    }
+
+    public bool IsMoving()
+    {
+        return moveDir.magnitude > 0.5f;
+    }
+
+    public bool IsDucking()
+    {
+        return isDucking;
+    }
+
+    public bool IsBoosting()
+    {
+        return isBoosting;
+    }
+
+    public bool IsGrounded()
+    {
+        return isGrounded;
     }
 }

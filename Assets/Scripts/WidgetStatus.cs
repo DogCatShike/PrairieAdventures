@@ -12,10 +12,15 @@ public class WidgetStatus : MonoBehaviour
     public float widgetBoostUsage = 5;
 
     public WidgetController playerController;
+    public WidgetAnimation playerAnimation;
+
+    public GameObject body;
+    public GameObject wheels;
 
     void Start()
     {
         playerController = GetComponent<WidgetController>();
+        playerAnimation = GetComponent<WidgetAnimation>();
     }
 
     public void AddHealth(float boost)
@@ -52,6 +57,8 @@ public class WidgetStatus : MonoBehaviour
 
         playerController.isControllable = false;
 
+        playerAnimation.PlayDie();
+
         yield return StartCoroutine(WaitForDie());
 
         HideCharacter();
@@ -61,6 +68,8 @@ public class WidgetStatus : MonoBehaviour
         ShowCharacter();
 
         health = maxHealth;
+
+        playerAnimation.ReBorn();
     }
 
     IEnumerator WaitForDie()
@@ -75,15 +84,17 @@ public class WidgetStatus : MonoBehaviour
 
     void HideCharacter()
     {
-        GameObject.FindGameObjectWithTag("Body").GetComponent<SkinnedMeshRenderer>().enabled = false;
-        GameObject.FindGameObjectWithTag("Wheels").GetComponent<SkinnedMeshRenderer>().enabled = false;
+        Debug.Log("隐藏角色");
+        body.GetComponent<SkinnedMeshRenderer>().enabled = false;
+        wheels.GetComponent<SkinnedMeshRenderer>().enabled = false;
         playerController.isControllable = false;
     }
 
     void ShowCharacter()
     {
-        GameObject.FindGameObjectWithTag("Body").GetComponent<SkinnedMeshRenderer>().enabled = true;
-        GameObject.FindGameObjectWithTag("Wheels").GetComponent<SkinnedMeshRenderer>().enabled = true;
+        Debug.Log("显示角色");
+        body.GetComponent<SkinnedMeshRenderer>().enabled = true;
+        wheels.GetComponent<SkinnedMeshRenderer>().enabled = true;
         playerController.isControllable = true;
     }
 }
