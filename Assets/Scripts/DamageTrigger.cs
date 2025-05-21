@@ -10,7 +10,8 @@ public class DamageTrigger : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         Debug.Log("Trigger entered");
-        playerStatus = other.GetComponent<WidgetStatus>();
+        // playerStatus = other.GetComponent<WidgetStatus>();
+        playerStatus = GameObject.FindWithTag("Player").GetComponent<WidgetStatus>();
         playerStatus.ApplyDamage(damage);
     }
 }
