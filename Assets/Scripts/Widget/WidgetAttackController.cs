@@ -16,6 +16,7 @@ public class WidgetAttackController : MonoBehaviour
     bool isBusy = false;
     Vector3 ourLocation;
     GameObject[] enemies;
+    GameObject wantedEnemy;
 
     void Start()
     {
@@ -58,5 +59,23 @@ public class WidgetAttackController : MonoBehaviour
             }
         }
         isBusy = false;
+    }
+
+    public GameObject GetClosetEnemy()
+    {
+        enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        float disToEnemy = Mathf.Infinity;
+
+        foreach (GameObject enemy in enemies)
+        {
+            float newDisToEnemy = Vector3.Distance(enemy.transform.position, this.transform.position);
+            if (newDisToEnemy < disToEnemy)
+            {
+                disToEnemy = newDisToEnemy;
+                wantedEnemy = enemy;
+            }
+        }
+
+        return wantedEnemy;
     }
 }

@@ -5,6 +5,9 @@ using UnityEngine;
 public class EBunnyStatus : MonoBehaviour
 {
     public float health = 10;
+    public float maxHealth = 10;
+    public float energy = 10;
+    public float maxEnergy = 10;
     public int numHeldItemMin = 1;
     public int numHeldItemMax = 3;
     public GameObject pickup1;
