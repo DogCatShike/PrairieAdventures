@@ -5,7 +5,7 @@ using UnityEngine;
 public class WidgetCamera : MonoBehaviour
 {
     public Transform target;
-    public float distance = 10;
+    public float distance = 5;
     public float height = 5;
     public float heightDamping = 2;
     public float rotationDamping = 3;

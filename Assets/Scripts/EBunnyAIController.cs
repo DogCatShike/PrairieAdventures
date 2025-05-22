@@ -7,16 +7,22 @@ public class EBunnyAIController : MonoBehaviour
     public Transform target;
     public float rotateSpeed = 30;
     public float walkSpeed = 3;
+    public float attackMoveSpeed = 5;
     public float attackDis = 15;
+    public float attackRadius = 2.5f;
+    public float damage = 1;
 
     public float dirTraveltime = 2;
     public float idleTime = 1.5f;
+    public bool isAttacking = false;
+    public Vector3 attackPos = new Vector3(0, 1, 0);
 
     CharacterController controller;
     Animation animation;
 
     float timeToNewDir;
     Vector3 disToPlayer;
+    float lastAttackTime = 0;
 
     void Start()
     {
@@ -43,7 +49,7 @@ public class EBunnyAIController : MonoBehaviour
         while (true)
         {
             yield return StartCoroutine(Idle());
-            // Attack();
+            yield return StartCoroutine(Attack());
         }
     }
 
@@ -77,8 +83,33 @@ public class EBunnyAIController : MonoBehaviour
         }
     }
 
-    void Attack()
+    IEnumerator Attack()
     {
+        isAttacking = true;
+        animation.Play("EBunny_Attack");
 
+        transform.LookAt(target);
+
+        Vector3 dir = transform.TransformDirection(Vector3.forward * attackMoveSpeed);
+        controller.SimpleMove(dir);
+
+        bool lostSight = false;
+        while (!lostSight)
+        {
+            Vector3 location = transform.TransformPoint(attackPos) - target.position;
+            if (Time.time > lastAttackTime + 2 && location.magnitude < attackRadius)
+            {
+                target.SendMessage("ApplyDamage", damage);
+                lastAttackTime = Time.time;
+            }
+
+            if (location.magnitude > attackRadius)
+            {
+                lostSight = true;
+                yield break;
+            }
+            yield return null;
+        }
+        isAttacking = false;
     }
 }
